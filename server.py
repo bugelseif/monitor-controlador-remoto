@@ -2,6 +2,15 @@ import json
 import socket
 import sys
 
+
+# Configuração
+
+IP = '0.0.0.0'
+PORT = 50000
+
+
+# Valores
+
 controle = {
     'luz_guarita': False,
     'ar_guarita': False,
@@ -17,8 +26,6 @@ controle = {
 
 def main():
     print("start server")
-    IP = "0.0.0.0"
-    PORT = 50000
     serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     serverSock.bind((IP, PORT))
     while True:

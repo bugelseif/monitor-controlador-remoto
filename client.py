@@ -1,5 +1,5 @@
-import socket
 import json
+import socket
 import sys
 
 locates = [

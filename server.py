@@ -1,6 +1,15 @@
-import socket
 import json
+import socket
 import sys
+
+
+# Configuração
+
+IP = '0.0.0.0'
+PORT = 50000
+
+
+# Valores
 
 controle = {
     'luz_guarita': False,
@@ -16,39 +25,30 @@ controle = {
 
 
 def main():
-    print("start server")
-    IP = "0.0.0.0"
-    PORT = 50000
+    print('Iniciando servidor...', end='\n\n\n')
     serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     serverSock.bind((IP, PORT))
     while True:
         msg, client = serverSock.recvfrom(1024)
-        if(msg.decode() == 'sair'):
-            print("Fechando")
+        msg = msg.decode()
+        if msg == 'sair':
+            print('Fechando...')
             sys.exit()
 
         msg = json.loads(msg)
-        print(f'recebido: {msg}')
+        print(f'Recebido: {msg}')
+
         locate = msg['locate']
-        retorno = controle[locate]
-
-        if(msg['command'] == 'SET'):
-            retorno = msg['value']
-            controle[locate] = retorno
-
-        if retorno:
-            status = 'on'
-        else:
-            status = 'off'
-
+        if msg['command'] == 'SET':
+            controle[locate] = msg['value']
         enviar = {
             'locate': locate,
-            'status': status,
+            'status': 'on' if controle[locate] else 'off',
         }
-        msg = json.dumps(enviar)
-        print(f"enviado: {msg} \n\n")
-        serverSock.sendto(bytes(msg, 'utf-8'), client)
+
+        print(f'Enviado: {enviar}', end='\n\n\n')
+        serverSock.sendto(bytes(json.dumps(enviar), 'utf-8'), client)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

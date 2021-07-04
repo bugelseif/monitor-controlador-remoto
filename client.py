@@ -38,46 +38,46 @@ selectStatus = '''Digite o status pelo número:
 
 
 def main():
-    print("start client")
+    print('Iniciando cliente...')
     clientSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     while True:
-        print(selectLocate)
-        local = int(input("digite o numero do local: "))
-        while 8 < local or 0 > local:
+        while True:
+            print(selectLocate)
+            local = int(input('Digite o número do local: '))
+            if 0 <= local <= 8:
+                break
             if local == 99:
-                print("Fechando")
+                print('Fechando...')
                 clientSock.sendto(bytes('sair', 'utf-8'), (IP, PORT))
                 sys.exit()
-            print("Local incorreto, verifique")
-            local = int(input("digite o numero do local: "))
-        print(selectCommand)
-        comando = int(input("digite o numero do comando: "))
-        while 1 < comando or 0 > comando:
-            print("Comando incorreto, verifique")
-            comando = int(input("digite o numero do comando: "))
+            print('Local incorreto, verifique')
 
-        if(comando == 1):
-            print(selectStatus)
-            valor = int(input("digite o numero do status: "))
-            enviar = {
-                'command': commands[comando],
-                'locate': locates[local],
-                'value': values[valor]
-            }
-        else:
-            enviar = {
-                'command': commands[comando],
-                'locate': locates[local]
-            }
+        while True:
+            print(selectCommand)
+            comando = int(input('Digite o número do comando: '))
+            if comando == 0 or comando == 1:
+                break
+            print('Comando incorreto, verifique')
 
-        msg = json.dumps(enviar)
-        print(f"enviado: {msg}")
-        clientSock.sendto(bytes(msg, 'utf-8'), (IP, PORT))
-        msgRecv = clientSock.recv(1024)
-        msgRecv = json.loads(msgRecv)
+        enviar = {
+            'command': commands[comando],
+            'locate': locates[local],
+        }
+        if comando == 1:
+            while True:
+                print(selectStatus)
+                valor = int(input('Digite o número do status: '))
+                if valor == 0 or valor == 1:
+                    break
+                print('Valor incorreto, verifique')
 
-        print(f"recebido: {msgRecv} \n\n")
+            enviar['value'] = values[valor]
+
+        print(f'Enviado: {enviar}')
+        clientSock.sendto(bytes(json.dumps(enviar), 'utf-8'), (IP, PORT))
+        msgRecv = json.loads(clientSock.recv(1024))
+        print(f'Recebido: {msgRecv}', end='\n\n\n')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
